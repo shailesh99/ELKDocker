@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beats
+  labels:
+    app: beats
+spec:
+  selector:
+    matchLabels:
+      app: beats
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: beats
+    spec:
+      containers:
+      - image: nginx:latest
+        name: beats
+        ports:
+          - containerPort: 80
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        volumeMounts:
+        - name: casaiislogs
+          mountPath: /mnt/casaiislogs
+      volumes:
+      - name: casaiislogs
+        azureFile:
+          secretName: azure-secret
+          shareName: casaiislogs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beats
+  labels:
+    app: beats
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: beats
+  type: LoadBalancer
