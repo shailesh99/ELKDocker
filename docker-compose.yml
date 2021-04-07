@@ -29,6 +29,23 @@ services:
     networks:
       - elastic
 
+  fb01:
+    image: filebeat:1.0
+    user: root
+    container_name: fb01
+    volumes:
+      - ./filebeat.docker.yml:/usr/share/filebeat/filebeat.yml
+  #    - type: bind
+  #      source: $(pwd)/filebeat.docker.yml
+  #      target: /usr/share/filebeat/filebeat.yml:ro
+      -  /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data:/home/iislogs
+    environment: 
+      output.elasticsearch.hosts: es01:9200
+    networks:
+      - elastic
+
 volumes:
   data01:
     driver: local
